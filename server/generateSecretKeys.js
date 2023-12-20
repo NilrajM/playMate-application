@@ -6,6 +6,8 @@ function generateRandomeSecret(len){
 
 const accessTokenSecret = generateRandomeSecret(64);
 const refreshTokenSecret = generateRandomeSecret(64);
+const otpSecretKey = generateRandomeSecret(20);
 
 console.log("Access Token Secret: ", accessTokenSecret);
 console.log("Refresh Token Secret: ", refreshTokenSecret);
+console.log("OTP Secret key: ", otpSecretKey);
