@@ -16,4 +16,13 @@ router.route("/signOut")
 router.route("/verifyEmail")
         .post(userAuthController.verifyEmail);
 
+router.route("/forgotPassword")
+        .post(userAuthController.forgotPassword);
+
+router.route("/resetPassword")
+        .post(userAuthController.resetPassword);
+
+router.route("/newAccessToken")
+        .post(userAuthController.refreshAccessToken);
+
 export default router;
