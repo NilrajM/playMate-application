@@ -2,12 +2,24 @@ import { ReactElement, useState } from "react"
 import { Avatar, Box, Grid, Typography, TextField, Button, Link, Paper, CssBaseline, Slide} from "@mui/material"
 import { HowToRegOutlined} from "@mui/icons-material";
 import backgoundImg from '../../src/assets/background.jpg';
-import sideImg from '../../src/assets/sideImg.jpg';
+import { useLottie } from "lottie-react";
+import signUpAnimation from '../../src/assets/SignUpPage.json';
 
 const SignUp: React.FC = (): ReactElement => {
-const [open, setOpen] = useState<boolean>(true);
+    const [open, setOpen] = useState<boolean>(true);
+    const lottieOptions = {
+      loop: true,
+      autoplay: true,
+      animationData: signUpAnimation,
+      rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+      },
+    }
+
+    const {View} = useLottie(lottieOptions);
+
     return(
-        <Grid container component="main" sx={{ height: '100vh' }}>
+        <Grid container component="main" sx={{ height: '100vh', overflow:'hidden' }}>
         <CssBaseline />
         <Grid
           item
@@ -17,13 +29,14 @@ const [open, setOpen] = useState<boolean>(true);
           sx={{
             backgroundImage: `url(${backgoundImg})`,
             backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            // backgroundColor: (t) =>
+            //   t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
             backgroundSize: 'cover',
             backgroundPosition: 'center',
           }}
+          {...View}
         />
-        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square sx={{backgroundImage: `url(})`}}>
+        <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
         <Slide direction="left" in={open} mountOnEnter unmountOnExit>
           <Box
             sx={{
@@ -40,7 +53,7 @@ const [open, setOpen] = useState<boolean>(true);
               padding: '70px 50px 100px 50px',
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <Avatar sx={{ m: 1, bgcolor: 'rgba(1, 181, 98, 0.8)' }}>
               <HowToRegOutlined/>
             </Avatar>
             <Typography component="h1" variant="h5">
@@ -81,7 +94,14 @@ const [open, setOpen] = useState<boolean>(true);
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 3, 
+                  mb: 2,
+                  bgcolor: 'rgba(1, 181, 98, 0.8)',
+                  '&:hover': {
+                      backgroundColor: 'rgba(29, 211, 126, 0.8)', 
+                  },
+                  transition: 'background-color 0.3s', 
+                }}
               >
                 Sign Up
               </Button>
