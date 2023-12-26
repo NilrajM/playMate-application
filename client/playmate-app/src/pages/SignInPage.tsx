@@ -2,12 +2,29 @@ import { ReactElement, useState } from "react"
 import { Avatar, Box, Grid, Typography, TextField, Button, Link, Checkbox, FormControlLabel, Paper, CssBaseline, Slide} from "@mui/material"
 import LoginIcon from '@mui/icons-material/Login';
 import backgoundImg from '../../src/assets/background.jpg';
+import signInAnimation from '../../src/assets/SignInPage.json';
+import { useLottie } from "lottie-react";
 
 const SignIn: React.FC = (): ReactElement => {
   const[open, setOpen] = useState<boolean>(true);
+  const lottieOptions = {
+      loop: false,
+      autoplay: true,
+      animationData: signInAnimation,
+      rendererSettings: {
+      preserveAspectRatio: 'xMidYMid slice',
+      },
+      style:{
+        width: '50%',
+        height: '50%'
+      }
+  }
+
+  const {View} = useLottie(lottieOptions);
+
     return(
       
-        <Grid container component="main" sx={{ height: '100vh' }}>
+        <Grid container component="main" sx={{ height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <Grid
           item
@@ -17,11 +34,13 @@ const SignIn: React.FC = (): ReactElement => {
           sx={{
             backgroundImage: `url(${backgoundImg})`,
             backgroundRepeat: 'no-repeat',
-            backgroundColor: (t) =>
-              t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            // backgroundColor: (t) =>
+            //   t.palette.mode === 'dark' ? t.palette.grey[50] : t.palette.grey[900],
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            padding:10
           }}
+          {...View}
         />
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
         <Slide direction="left" in={open} mountOnEnter unmountOnExit>
@@ -40,7 +59,7 @@ const SignIn: React.FC = (): ReactElement => {
               padding: '70px 50px 100px 50px',
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+            <Avatar sx={{ m: 1, bgcolor: 'rgba(1, 181, 98, 0.8)' }}>
               <LoginIcon/>
             </Avatar>
             <Typography component="h1" variant="h5">
@@ -75,13 +94,20 @@ const SignIn: React.FC = (): ReactElement => {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{ mt: 3, mb: 2 }}
+                sx={{ mt: 3, 
+                  mb: 2,
+                  bgcolor: 'rgba(1, 181, 98, 0.8)',
+                  '&:hover': {
+                      backgroundColor: 'rgba(29, 211, 126, 0.8)', 
+                  },
+                  transition: 'background-color 0.3s', 
+                 }}
               >
                 Sign In
               </Button>
               <Grid container>
                 <Grid item xs>
-                  <Link href="#" variant="body2">
+                  <Link href="/forgotpassword" variant="body2">
                     Forgot password?
                   </Link>
                 </Grid>

@@ -1,25 +1,26 @@
 import { ReactElement, useState } from "react"
-import { Avatar, Box, Grid, Typography, TextField, Button, Link, Paper, CssBaseline, Slide} from "@mui/material"
-import { HowToRegOutlined} from "@mui/icons-material";
+import { Avatar, Box, Grid, Typography, TextField, Button, Link, Checkbox, FormControlLabel, Paper, CssBaseline, Slide} from "@mui/material"
+import LoginIcon from '@mui/icons-material/Login';
 import backgoundImg from '../../src/assets/background.jpg';
+import resetPageAnimation from '../../src/assets/ResetPasswordPage.json';
 import { useLottie } from "lottie-react";
-import signUpAnimation from '../../src/assets/SignUpPage.json';
 
-const SignUp: React.FC = (): ReactElement => {
-    const [open, setOpen] = useState<boolean>(true);
-    const lottieOptions = {
-      loop: true,
+const ResetPassword: React.FC = (): ReactElement => {
+  const[open, setOpen] = useState<boolean>(true);
+  const lottieOptions = {
+      loop: false,
       autoplay: true,
-      animationData: signUpAnimation,
+      animationData: resetPageAnimation,
       rendererSettings: {
       preserveAspectRatio: 'xMidYMid slice',
       },
-    }
+  }
 
-    const {View} = useLottie(lottieOptions);
+  const {View} = useLottie(lottieOptions);
 
     return(
-        <Grid container component="main" sx={{ height: '100vh', overflow:'hidden' }}>
+      
+        <Grid container component="main" sx={{ height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <Grid
           item
@@ -30,9 +31,13 @@ const SignUp: React.FC = (): ReactElement => {
             backgroundImage: `url(${backgoundImg})`,
             backgroundRepeat: 'no-repeat',
             // backgroundColor: (t) =>
-            //   t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            //   t.palette.mode === 'dark' ? t.palette.grey[50] : t.palette.grey[900],
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            display: 'flex',
+            height: '100%',
+            width: '100%',
+            padding:20
           }}
           {...View}
         />
@@ -54,42 +59,33 @@ const SignUp: React.FC = (): ReactElement => {
             }}
           >
             <Avatar sx={{ m: 1, bgcolor: 'rgba(1, 181, 98, 0.8)' }}>
-              <HowToRegOutlined/>
+              <LoginIcon/>
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign up
+              Reset Password
             </Typography>
             <Box component="form" noValidate  sx={{ mt: 1 }}>
-                <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="userName"
-                label="User name"
-                name="userName"
-                autoComplete="userName"
-                autoFocus
-              />
               <TextField
                 margin="normal"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
-                autoFocus
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
+                name="newPassword"
+                label="New Password"
                 type="password"
-                id="password"
+                id="newPassword"
                 autoComplete="current-password"
               />
+              <TextField
+                margin="normal"
+                required
+                fullWidth
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                id="confirmPassword"
+                autoComplete="current-password"
+              />
+              
               <Button
                 type="submit"
                 fullWidth
@@ -101,23 +97,17 @@ const SignUp: React.FC = (): ReactElement => {
                       backgroundColor: 'rgba(29, 211, 126, 0.8)', 
                   },
                   transition: 'background-color 0.3s', 
-                }}
+                 }}
               >
-                Sign Up
+                Reset Password
               </Button>
-              <Grid container>
-                <Grid item >
-                  <Link href="/signin" variant="body2">
-                    {"Go to Sign In"}
-                  </Link>
-                </Grid>
-              </Grid>
             </Box>
           </Box>
           </Slide>
         </Grid>
       </Grid>
+      
     )
 }
 
-export default SignUp;
+export default ResetPassword;

@@ -1,25 +1,26 @@
 import { ReactElement, useState } from "react"
-import { Avatar, Box, Grid, Typography, TextField, Button, Link, Paper, CssBaseline, Slide} from "@mui/material"
-import { HowToRegOutlined} from "@mui/icons-material";
+import { Avatar, Box, Grid, Typography, TextField, Button, Link, Checkbox, FormControlLabel, Paper, CssBaseline, Slide} from "@mui/material"
+import { QuestionMarkOutlined } from "@mui/icons-material";
 import backgoundImg from '../../src/assets/background.jpg';
+import forgotPageAnimation from '../../src/assets/ForgotPasswordPage.json';
 import { useLottie } from "lottie-react";
-import signUpAnimation from '../../src/assets/SignUpPage.json';
 
-const SignUp: React.FC = (): ReactElement => {
-    const [open, setOpen] = useState<boolean>(true);
-    const lottieOptions = {
+const ForgotPassword: React.FC = (): ReactElement => {
+  const[open, setOpen] = useState<boolean>(true);
+  const lottieOptions = {
       loop: true,
       autoplay: true,
-      animationData: signUpAnimation,
+      animationData: forgotPageAnimation,
       rendererSettings: {
       preserveAspectRatio: 'xMidYMid slice',
       },
-    }
+  }
 
-    const {View} = useLottie(lottieOptions);
+  const {View} = useLottie(lottieOptions);
 
     return(
-        <Grid container component="main" sx={{ height: '100vh', overflow:'hidden' }}>
+      
+        <Grid container component="main" sx={{ height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <Grid
           item
@@ -30,9 +31,10 @@ const SignUp: React.FC = (): ReactElement => {
             backgroundImage: `url(${backgoundImg})`,
             backgroundRepeat: 'no-repeat',
             // backgroundColor: (t) =>
-            //   t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
+            //   t.palette.mode === 'dark' ? t.palette.grey[50] : t.palette.grey[900],
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            padding:10
           }}
           {...View}
         />
@@ -54,22 +56,15 @@ const SignUp: React.FC = (): ReactElement => {
             }}
           >
             <Avatar sx={{ m: 1, bgcolor: 'rgba(1, 181, 98, 0.8)' }}>
-              <HowToRegOutlined/>
+              <QuestionMarkOutlined/>
             </Avatar>
             <Typography component="h1" variant="h5">
-              Sign up
+              Play Mate
+            </Typography>
+            <Typography variant="body2" sx={{mt:1, textAlign:'center'}}>
+            Enter the email address associated with your account, and we'll send you a link to reset your password.
             </Typography>
             <Box component="form" noValidate  sx={{ mt: 1 }}>
-                <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="userName"
-                label="User name"
-                name="userName"
-                autoComplete="userName"
-                autoFocus
-              />
               <TextField
                 margin="normal"
                 required
@@ -79,16 +74,7 @@ const SignUp: React.FC = (): ReactElement => {
                 name="email"
                 autoComplete="email"
                 autoFocus
-              />
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
+                sx={{width: '30vw'}}
               />
               <Button
                 type="submit"
@@ -97,18 +83,19 @@ const SignUp: React.FC = (): ReactElement => {
                 sx={{ mt: 3, 
                   mb: 2,
                   bgcolor: 'rgba(1, 181, 98, 0.8)',
+                  width:'30vw',
                   '&:hover': {
                       backgroundColor: 'rgba(29, 211, 126, 0.8)', 
                   },
                   transition: 'background-color 0.3s', 
-                }}
+                 }}
               >
-                Sign Up
+                Send Link
               </Button>
               <Grid container>
-                <Grid item >
+                <Grid item>
                   <Link href="/signin" variant="body2">
-                    {"Go to Sign In"}
+                    {"Remembered password? Sign In"}
                   </Link>
                 </Grid>
               </Grid>
@@ -117,7 +104,8 @@ const SignUp: React.FC = (): ReactElement => {
           </Slide>
         </Grid>
       </Grid>
+      
     )
 }
 
-export default SignUp;
+export default ForgotPassword;
