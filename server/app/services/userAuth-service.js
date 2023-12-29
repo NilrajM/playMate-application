@@ -154,13 +154,13 @@ export const updateResetToken = async(userId, resetToken, resetExpireDate) => {
 
 export const sendResetPasswordLink = async(email, resetToken) => {
     try{
-        const resetLink = `${resetToken}`;
+        const resetLink = `http://localhost:3001/resetpassword/${resetToken}`;
         const mail = {
             from: 'nilrajmayekar@gmail.com',
             to: email,
             subject: 'Reset password request',
             html: `<p>You have requested to reset your password. Please click on the following link: </p>
-                    <a href="#" target="_blank">${resetLink}</a>`,
+                    <a href="${resetLink}" target="_blank">${resetLink}</a>`,
         };
 
         await transporter.sendMail(mail);
