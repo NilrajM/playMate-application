@@ -1,12 +1,25 @@
-import { ReactElement, useState } from "react"
-import { Avatar, Box, Grid, Typography, TextField, Button, Link, Checkbox, FormControlLabel, Paper, CssBaseline, Slide} from "@mui/material"
+import { ReactElement, useEffect, useState } from "react"
+import { Avatar, Box, Grid, Typography, TextField, Button, Link, Checkbox, FormControlLabel, Paper, CssBaseline, Slide, InputAdornment, IconButton, AlertColor, Snackbar} from "@mui/material"
 import LoginIcon from '@mui/icons-material/Login';
 import backgoundImg from '../../src/assets/background.jpg';
 import signInAnimation from '../../src/assets/SignInPage.json';
 import { useLottie } from "lottie-react";
+import MuiAlert from '@mui/material/Alert';
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import * as userAuthService from '../services/userAuth-service';
 
 const SignIn: React.FC = (): ReactElement => {
   const[open, setOpen] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [passwordError, setPasswordError] = useState<string>('');
+  const [emailError, setEmailError] = useState<string>('');
+  const [isSignInButtonDisbaled, setIsSignInButtonDisbaled] = useState<boolean>(true); 
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('success');
+
   const lottieOptions = {
       loop: false,
       autoplay: true,
@@ -21,6 +34,69 @@ const SignIn: React.FC = (): ReactElement => {
   }
 
   const {View} = useLottie(lottieOptions);
+
+  const showSnackbar = (message: string, severity: AlertColor) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  }
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  }
+
+  const validateEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  const validateField = (field: string, value: string): void => {
+    if(!value){
+      if(field === 'email'){
+        setEmailError('Email is required');
+      }
+      else if(field === 'password'){
+        setPasswordError('Password is required')
+      }
+    }
+    else if(field === 'email' && !validateEmail(value)){
+      setEmailError('Email is invalid')
+    }
+    else{
+      setEmailError('');
+      setPasswordError('');
+    }
+  }
+
+  useEffect(() => {
+    setPasswordError('');
+    setEmailError('');
+    const isFormComplete = email && password;
+    setIsSignInButtonDisbaled(!isFormComplete);
+  },[email, password])
+
+  const handleSignIn = async() => {
+    try{
+      validateField('email', email);
+      validateField('password', password);
+
+      if(!emailError && !passwordError){
+        const userData = {email, password};
+        const response = await userAuthService.loginUser(userData);
+        const {user, tokens} = response;
+
+        if(response.success && user){
+          showSnackbar('User logged in successfully', 'success');
+        }
+        else{
+          showSnackbar(`Error signing in: ${response.message}`,'error')
+        }
+      }
+    }
+    catch(err){
+      showSnackbar('Unexpected error during sign-in', 'error');
+    }
+  }
 
     return(
       
@@ -65,7 +141,7 @@ const SignIn: React.FC = (): ReactElement => {
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
-            <Box component="form" noValidate  sx={{ mt: 1 }}>
+            <Box sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -73,8 +149,12 @@ const SignIn: React.FC = (): ReactElement => {
                 id="email"
                 label="Email Address"
                 name="email"
-                autoComplete="email"
-                autoFocus
+                autoFocus={!open}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => validateField('email', email)}
+                error={!!emailError}
+                helperText={emailError}
               />
               <TextField
                 margin="normal"
@@ -82,9 +162,22 @@ const SignIn: React.FC = (): ReactElement => {
                 fullWidth
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
-                autoComplete="current-password"
+                autoFocus={!open}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => validateField('password', password)}
+                error={!!passwordError}
+                helperText={passwordError}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <Visibility/>: <VisibilityOff/>}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
@@ -102,6 +195,8 @@ const SignIn: React.FC = (): ReactElement => {
                   },
                   transition: 'background-color 0.3s', 
                  }}
+                 disabled={isSignInButtonDisbaled}
+                 onClick={handleSignIn}
               >
                 Sign In
               </Button>
@@ -120,6 +215,11 @@ const SignIn: React.FC = (): ReactElement => {
             </Box>
           </Box>
           </Slide>
+          <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{vertical:'top', horizontal:'center'}}>
+            <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{width: '100%', maxWidth: '600px'}}>
+              {snackbarMessage}
+            </MuiAlert>
+          </Snackbar>
         </Grid>
       </Grid>
       
