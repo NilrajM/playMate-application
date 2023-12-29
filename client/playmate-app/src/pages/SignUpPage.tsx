@@ -1,12 +1,25 @@
-import { ReactElement, useState } from "react"
-import { Avatar, Box, Grid, Typography, TextField, Button, Link, Paper, CssBaseline, Slide} from "@mui/material"
-import { HowToRegOutlined} from "@mui/icons-material";
+import { ReactElement, useEffect, useState } from "react"
+import { Avatar, Box, Grid, Typography, TextField, Button, Link, Paper, CssBaseline, Slide, InputAdornment, IconButton,AlertColor, Snackbar} from "@mui/material"
+import { HowToRegOutlined, Visibility, VisibilityOff} from "@mui/icons-material";
 import backgoundImg from '../../src/assets/background.jpg';
 import { useLottie } from "lottie-react";
 import signUpAnimation from '../../src/assets/SignUpPage.json';
+import MuiAlert from '@mui/material/Alert';
+import * as userAuthService from '../services/userAuth-service';
 
 const SignUp: React.FC = (): ReactElement => {
     const [open, setOpen] = useState<boolean>(true);
+    const [userName, setUsername] = useState<string>('');
+    const [email, setEmail] = useState<string>('');
+    const [password, setPassword] = useState<string>('');
+    const [passwordError, setPasswordError] = useState<string>('');
+    const [emailError, setEmailError] = useState<string>('');
+    const [isSignUpButtonDisbaled, setIsSignUpButtonDisbaled] = useState<boolean>(true); 
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('success');
+
     const lottieOptions = {
       loop: true,
       autoplay: true,
@@ -18,7 +31,89 @@ const SignUp: React.FC = (): ReactElement => {
 
     const {View} = useLottie(lottieOptions);
 
+    const showSnackbar = (message: string, severity: AlertColor) => {
+      setSnackbarMessage(message);
+      setSnackbarSeverity(severity);
+      setSnackbarOpen(true);
+    }
+
+    const handleCloseSnackbar = () => {
+      setSnackbarOpen(false);
+    }
+
+    const validateEmail = (email: string): boolean => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    }
+
+    const validatePassword = (password: string): boolean => {
+      const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[@!#*`~]).{8,}$/;
+      return passwordRegex.test(password);
+    }
+
+    const validateField = (field: string, value: string): void => {
+      if(!value){
+        if(field === 'email'){
+          setEmailError('Email is required')
+        }
+        else if(field === 'password'){
+          setPasswordError('Password is required')
+        }
+      }
+      else if(field === 'email' && !validateEmail(value)){
+        setEmailError('Email is invalid')
+      }
+      else if(field === 'password' && !validatePassword(value)){
+        if(!(/[!@#$%^&*(),.?":{}|<>]/.test(value))){
+          setPasswordError('Password should have atleast 1 special character')
+        }
+        else if(!(/\d/.test(value))){
+            setPasswordError('Password should have a number')
+        }
+        else if(!(/[A-Z]/.test(value))){
+            setPasswordError('Password should contain a uppercase character')
+        }
+        else if(!(/[a-z]/.test(value))){
+            setPasswordError('Password should contain a lower case character')
+        }
+      }
+      else{
+        setEmailError('');
+        setPasswordError('');
+      }
+    }
+
+    useEffect(() => {
+      setEmailError('');
+      setPasswordError('');
+      const isFormComplete = userName && email && password;
+      setIsSignUpButtonDisbaled(!isFormComplete);
+    },[userName, email, password]);
+
+    const handleSignUp = async () => {
+      try{
+        validateField('email', email);
+        validateField('password', password);
+
+        if(!emailError && !passwordError){
+          const userData = {userName, email, password};
+          const response = await userAuthService.registerUSer(userData);
+          if(response.success){
+            showSnackbar('User registered successfully', 'success');
+          }
+          else{
+            showSnackbar(`Error registering the user ${response.message}`, 'error')
+          }
+        }
+
+      }
+      catch(err){
+        showSnackbar(`Unexpected error during registration:`,'error')
+      }
+    }
+
     return(
+      <>
         <Grid container component="main" sx={{ height: '100vh', overflow:'hidden' }}>
         <CssBaseline />
         <Grid
@@ -59,7 +154,7 @@ const SignUp: React.FC = (): ReactElement => {
             <Typography component="h1" variant="h5">
               Sign up
             </Typography>
-            <Box component="form" noValidate  sx={{ mt: 1 }}>
+            <Box  sx={{ mt: 1 }}>
                 <TextField
                 margin="normal"
                 required
@@ -67,8 +162,9 @@ const SignUp: React.FC = (): ReactElement => {
                 id="userName"
                 label="User name"
                 name="userName"
-                autoComplete="userName"
-                autoFocus
+                autoFocus={!open}
+                value={userName}
+                onChange={(e) => setUsername(e.target.value)}
               />
               <TextField
                 margin="normal"
@@ -77,8 +173,12 @@ const SignUp: React.FC = (): ReactElement => {
                 id="email"
                 label="Email Address"
                 name="email"
-                autoComplete="email"
-                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onBlur={() => validateField('email', email)}
+                error={!!emailError}
+                helperText={emailError}
+                autoFocus={!open}
               />
               <TextField
                 margin="normal"
@@ -86,9 +186,23 @@ const SignUp: React.FC = (): ReactElement => {
                 fullWidth
                 name="password"
                 label="Password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="password"
-                autoComplete="current-password"
+                autoFocus={!open}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => validateField('password', password)}
+                error={!!passwordError}
+                helperText={passwordError}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
+                        {showPassword ? <Visibility/> : <VisibilityOff/>}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
               <Button
                 type="submit"
@@ -102,6 +216,8 @@ const SignUp: React.FC = (): ReactElement => {
                   },
                   transition: 'background-color 0.3s', 
                 }}
+                onClick={handleSignUp}
+                disabled={isSignUpButtonDisbaled}
               >
                 Sign Up
               </Button>
@@ -117,6 +233,12 @@ const SignUp: React.FC = (): ReactElement => {
           </Slide>
         </Grid>
       </Grid>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{vertical:'top', horizontal:'center'}}>
+            <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{width: '100%', maxWidth: '600px'}}>
+              {snackbarMessage}
+            </MuiAlert>
+      </Snackbar>
+      </>
     )
 }
 
