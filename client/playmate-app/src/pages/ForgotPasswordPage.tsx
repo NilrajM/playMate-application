@@ -1,12 +1,21 @@
-import { ReactElement, useState } from "react"
-import { Avatar, Box, Grid, Typography, TextField, Button, Link, Checkbox, FormControlLabel, Paper, CssBaseline, Slide} from "@mui/material"
+import { ReactElement, useEffect, useState } from "react"
+import { Avatar, Box, Grid, Typography, TextField, Button, Link, Checkbox, FormControlLabel, Paper, CssBaseline, Slide, Snackbar} from "@mui/material"
 import { QuestionMarkOutlined } from "@mui/icons-material";
 import backgoundImg from '../../src/assets/background.jpg';
 import forgotPageAnimation from '../../src/assets/ForgotPasswordPage.json';
 import { useLottie } from "lottie-react";
+import MuiAlert, { AlertColor } from '@mui/material/Alert';
+import * as userAuthService from '../services/userAuth-service';
 
 const ForgotPassword: React.FC = (): ReactElement => {
   const[open, setOpen] = useState<boolean>(true);
+  const [email, setEmail] = useState<string>('');
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<AlertColor>('success');
+  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
+  const [countdown, setCountdown] = useState<number>(30);
+
   const lottieOptions = {
       loop: true,
       autoplay: true,
@@ -18,8 +27,56 @@ const ForgotPassword: React.FC = (): ReactElement => {
 
   const {View} = useLottie(lottieOptions);
 
+  const showSnackbar = (message: string, severity: AlertColor) => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  }
+
+  const handleCloseSnackbar = () => {
+    setSnackbarOpen(false);
+  }
+
+  const handleForgotPassword = async () => {
+    try{
+      setIsButtonDisabled(true);
+      const response = await userAuthService.forgotPassword(email);
+
+      if(response.success){
+        showSnackbar('Reset password link sent successfully', 'success')
+      }
+      else{
+        showSnackbar('Error sending the reset password link', 'error')
+      }
+
+    }
+    catch(err){
+      showSnackbar('Unexpected error occurred while sending the link', 'error');
+    }
+    finally{
+      setTimeout(() => {
+        setIsButtonDisabled(false);
+        setCountdown(30);
+      },30000)
+    }
+  }
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if(isButtonDisabled){
+      intervalId = setInterval(() => {
+        setCountdown((prevCountdown) => (prevCountdown > 0 ? prevCountdown - 1 : 0));
+      }, 1000)
+    }
+
+    return () => {
+      clearInterval(intervalId);
+    }
+  },[isButtonDisabled])
+
     return(
-      
+      <>
         <Grid container component="main" sx={{ height: '100vh', overflow: 'hidden' }}>
         <CssBaseline />
         <Grid
@@ -64,7 +121,7 @@ const ForgotPassword: React.FC = (): ReactElement => {
             <Typography variant="body2" sx={{mt:1, textAlign:'center'}}>
             Enter the email address associated with your account, and we'll send you a link to reset your password.
             </Typography>
-            <Box component="form" noValidate  sx={{ mt: 1 }}>
+            <Box  sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -72,8 +129,9 @@ const ForgotPassword: React.FC = (): ReactElement => {
                 id="email"
                 label="Email Address"
                 name="email"
-                autoComplete="email"
-                autoFocus
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus={!open}
                 sx={{width: '30vw'}}
               />
               <Button
@@ -88,9 +146,11 @@ const ForgotPassword: React.FC = (): ReactElement => {
                       backgroundColor: 'rgba(29, 211, 126, 0.8)', 
                   },
                   transition: 'background-color 0.3s', 
+                  pointerEvents: isButtonDisabled ? 'none' : 'auto',
                  }}
+                 onClick={handleForgotPassword}
               >
-                Send Link
+                {isButtonDisabled ? `Send Link in (${countdown}s)` : 'Send Link'}
               </Button>
               <Grid container>
                 <Grid item>
@@ -104,7 +164,12 @@ const ForgotPassword: React.FC = (): ReactElement => {
           </Slide>
         </Grid>
       </Grid>
-      
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar} anchorOrigin={{vertical:'top', horizontal:'center'}}>
+        <MuiAlert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{width:'100%', maxWidth: '600px'}}>
+          {snackbarMessage}
+        </MuiAlert>
+      </Snackbar>
+      </>
     )
 }
 
